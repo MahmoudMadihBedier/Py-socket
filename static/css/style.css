@@ -96,6 +96,65 @@ body {
     background: linear-gradient(135deg, #2980b9, #2472a4);
 }
 
+/* Room Categories */
+.room-category {
+    margin-bottom: 1.5rem;
+}
+
+.category-header {
+    color: #2c3e50;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+/* Enhanced Room Items */
+.room-item {
+    padding: 0.75rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.room-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.room-item h6 {
+    color: #ecf0f1;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.room-item .badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.room-item small {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+}
+
+.room-item .bi {
+    font-size: 0.8rem;
+    margin-right: 0.25rem;
+}
+
+/* Room Privacy Icon */
+.room-item .bi-lock-fill {
+    color: #e74c3c;
+}
+
+/* Room Badge Colors */
+.badge.bg-primary { background-color: #3498db !important; }
+.badge.bg-success { background-color: #2ecc71 !important; }
+.badge.bg-info { background-color: #3498db !important; }
+.badge.bg-warning { background-color: #f1c40f !important; }
+.badge.bg-secondary { background-color: #95a5a6 !important; }
+
 /* User List */
 .user-list {
     padding: 15px;

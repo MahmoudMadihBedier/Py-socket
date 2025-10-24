@@ -135,9 +135,28 @@ def on_leave(data):
 @socketio.on('create_room')
 def on_create_room(data):
     room_name = data.get('room')
+    description = data.get('description', '')
+    category = data.get('category', 'Other')
+    is_private = data.get('is_private', False)
+    
     if room_name and room_name not in rooms:
-        rooms[room_name] = {'users': set(), 'messages': []}
-        emit('room_created', {'room': room_name}, broadcast=True)
+        username = users[request.sid]['username']
+        rooms[room_name] = {
+            'users': set(),
+            'messages': [],
+            'description': description,
+            'created_by': username,
+            'created_at': datetime.datetime.now(),
+            'category': category,
+            'is_private': is_private
+        }
+        emit('room_created', {
+            'room': room_name,
+            'description': description,
+            'category': category,
+            'created_by': username,
+            'is_private': is_private
+        }, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
