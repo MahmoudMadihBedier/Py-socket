@@ -8,8 +8,18 @@ import signal
 import sys
 from collections import defaultdict
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler('chat_server.log'),
+        logging.StreamHandler()
+    ]
+)
+
 class ChatServer:
-    def __init__(self, host="0.0.0.0", port=9090):
+    def __init__(self, host="localhost", port=9090):
         self.host = host
         self.port = port
         self.server = None
@@ -41,7 +51,8 @@ class ChatServer:
         try:
             self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.server.bind((self.host, self.port))
+            # Use an empty string for the host to bind to all available interfaces
+            self.server.bind(("", self.port))
             self.server.listen(100)  # Support up to 100 pending connections
             logging.info(f"🔥 Chat server started on {self.host}:{self.port} 🔥")
             return True
@@ -263,7 +274,7 @@ Messages sent: {info['msgs_sent']}
 if __name__ == "__main__":
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Advanced Python Chat Server")
-    parser.add_argument("--host", default="0.0.0.0", help="Host to bind to")
+    parser.add_argument("--host", default="127.0.0.1run", help="Host to bind to")
     parser.add_argument("--port", type=int, default=9090, help="Port to bind to")
     args = parser.parse_args()
 
