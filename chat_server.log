@@ -64,3 +64,27 @@ Cookie: rl_page_init_referrer=RudderEncrypt%3AU2FsdGVkX19HuO7Dn%2Fm6hX8rhhVwuWP6
 2025-10-24 23:35:18,256 [INFO] New connection from ('127.0.0.1', 48418)
 2025-10-24 23:36:18,281 [INFO] New connection from ('127.0.0.1', 47784)
 2025-10-24 23:36:18,283 [INFO] New connection from ('127.0.0.1', 47792)
+2025-10-24 23:36:44,286 [INFO] New connection from ('127.0.0.1', 51834)
+2025-10-24 23:36:44,287 [INFO] New connection from ('127.0.0.1', 51842)
+2025-10-24 23:36:45,333 [INFO] New connection from ('127.0.0.1', 51844)
+2025-10-24 23:36:45,511 [INFO] New connection from ('127.0.0.1', 51846)
+2025-10-24 23:40:21,820 [INFO] Shutting down server...
+2025-10-24 23:40:21,821 [INFO] Client disconnected: GET / HTTP/1.1
+Host: localhost:9090
+Connection: keep-alive
+Cache-Control: max-age=0
+sec-ch-ua: "Google Chrome";v="141", "Not?A_Brand";v="8", "Chromium";v="141"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Linux"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9
+Cookie: rl_page_init_referrer=RudderEncrypt%3AU2FsdGVkX19HuO7Dn%2Fm6hX8rhhVwuWP6n7sEh61qZYo%3D; rl_page_init_referring_domain=RudderEncrypt%3AU2FsdGVkX1%2B0%2BBS10aODEc1rfkZHBUZiF47Sv8d79UU%3D; n8n-auth=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImRiMzUxNzMyLTE1MjUtNGYyYi1iNjhiLTY2YTViNTY4ZGUwZCIsImhhc2giOiJWQzI1RU9BZUFyIiwiYnJvd3NlcklkIjoiajJra
+2025-10-24 23:40:21,822 [INFO] Client disconnected: GJLQVdEdkt2MlgzV3plQytVU2JCWUsrSFl5dkl2UGdhWlFQUE9aVT0iLCJ1c2VkTWZhIjpmYWxzZSwiaWF0IjoxNzYxMzI4NzQ3LCJleHAiOjE3NjE5MzM1NDd9.B7ZerQSxlF_T4adOKmbL3yFfMqLFqkk_qokKbnjOKMc; rl_anonymous_id=RudderEncrypt%3AU2FsdGVkX19CaWo3RkXxzb6cy6LyYg2PzX4xsSXpxvC1YKFad3tLzRwm12L%2BJ6r%2FqI%2FNrADxwlpPmCqXIOgAeQ%3D%3D; rl_session=RudderEncrypt%3AU2FsdGVkX1%2BcVDErSynfg4XKIF%2FML8Y0TWuCktdB5TtYQ3Giq9KC%2Bhkd29oeMQeJSVLs5wxkTnujs1a1LdLnoTQ7N%2BffkZTDGLzaKiGztmA4B5%2BMR6UKG1799sgbhBDnituoy%2BCAe2frXyggfz6xKA%3D%3D; ph_phc_4URIAm1uYfJO7j8kWSe0J8lc8IqnstRLS7Jx8NcakHo_posthog=%7B%22distinct_id%22%3A%22dc0e3ef1d8dbb5c32e5a101c99d2bd82d74bf83ffb80abd85510f5185b976f15%23db351732-1525-4f2b-b68b-66a5b568de0d%22%2C%22%24sesid%22%3A%5B1761331938163%2C%22019a175f-dd13-7730-951b-247ed4092bcc%22%2C1761328749787%5D%2C%22%24epp%22%3Atrue%2C%22%24initial_person_info%22%3A%7B%22r%22%3A%22%24direct%22%2C%22u%22%3A%22http%3A%2F%2Flocalhost%3A5678%2Fsetup%22%7D%7D
+2025-10-24 23:40:21,822 [INFO] Server shutdown complete
