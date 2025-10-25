@@ -140,7 +140,7 @@
     <!-- User Profile Sidebar -->
     <div class="sidebar">
         <div class="p-3 border-bottom d-flex flex-column align-items-center">
-            <img src="/static/img/default_avatar.png" alt="Avatar" class="rounded-circle mb-2" width="64" height="64" id="user-avatar">
+            <img src="/static/img/default_avatar.svg" alt="Avatar" class="rounded-circle mb-2" width="64" height="64" id="user-avatar">
             <h6 id="profile-username">{{ session['username'] if session['username'] else 'Guest' }}</h6>
             <span class="badge bg-success mb-2" id="profile-status">Online</span>
             <button class="btn btn-sm btn-outline-primary mb-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</button>
@@ -151,7 +151,14 @@
                 <i class="fas fa-plus"></i> New Room
             </button>
         </div>
-        <div class="room-list" id="roomList"></div>
+        <div class="room-list" id="roomList">
+            {% for name, info in rooms.items() %}
+            <div class="p-2 border-bottom room-item" data-room-id="{{ name }}">
+                <i class="fas fa-hashtag"></i> {{ name }}
+                <small class="text-muted d-block">{{ info.description }}</small>
+            </div>
+            {% endfor %}
+        </div>
         <div class="user-list">
             <h6>Online Users</h6>
             <div id="online-users"></div>
@@ -203,10 +210,14 @@
                 <div class="mb-3">
                     <label for="newRoomName" class="form-label">Room Name*</label>
                     <input type="text" class="form-control" id="newRoomName" required>
+                    <!-- compatibility field for main.js -->
+                    <input type="hidden" id="room-name" value="">
                 </div>
                 <div class="mb-3">
                     <label for="roomDescription" class="form-label">Description</label>
                     <textarea class="form-control" id="roomDescription" rows="2"></textarea>
+                    <!-- compatibility field for main.js -->
+                    <input type="hidden" id="room-description" value="">
                 </div>
                 <div class="mb-3">
                     <label for="roomCategory" class="form-label">Category</label>
@@ -227,6 +238,8 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" id="createRoomButton">Create</button>
+                <!-- compatibility create button for main.js -->
+                <button type="button" class="btn btn-primary d-none" id="create-room-button">Create</button>
             </div>
         </div>
     </div>
@@ -260,19 +273,45 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.js"></script>
 <script>
-    // Initialize emoji picker
-    const picker = new EmojiButton();
-    const emojiButton = document.getElementById('emoji-button');
-    const messageInput = document.getElementById('message-input');
+    window.currentUser = {
+        username: {{ session['username']|tojson }},
+        id: {{ session['username']|tojson }}
+    };
 
-    picker.on('emoji', emoji => {
-        messageInput.value += emoji;
+    // Map our create room modal to main.js expected fields
+    document.addEventListener('DOMContentLoaded', () => {
+        const createRoomButton = document.getElementById('createRoomButton');
+        const hiddenCreateBtn = document.getElementById('create-room-button');
+        createRoomButton && createRoomButton.addEventListener('click', () => {
+            const name = document.getElementById('newRoomName').value.trim();
+            const desc = document.getElementById('roomDescription').value.trim();
+            document.getElementById('room-name').value = name;
+            document.getElementById('room-description').value = desc;
+            // trigger main.js handler if present
+            if (hiddenCreateBtn) hiddenCreateBtn.click();
+        });
     });
+</script>
 
-    emojiButton.addEventListener('click', () => {
-        picker.togglePicker(emojiButton);
+<script type="module">
+    import EmojiButton from 'https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.0/dist/index.min.mjs';
+    document.addEventListener('DOMContentLoaded', () => {
+    const picker = new EmojiButton();
+    // expose globally for other scripts
+    window.emojiPicker = picker;
+        const emojiButton = document.getElementById('emoji-button');
+        const messageInput = document.getElementById('message-input');
+
+        if (!emojiButton || !messageInput) return;
+
+        picker.on('emoji', emoji => {
+            messageInput.value += emoji;
+        });
+
+        emojiButton.addEventListener('click', () => {
+            picker.togglePicker(emojiButton);
+        });
     });
 </script>
 {% endblock %}
