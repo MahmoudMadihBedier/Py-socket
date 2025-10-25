@@ -137,32 +137,33 @@
 
 {% block content %}
 <div class="chat-container">
+    <!-- User Profile Sidebar -->
     <div class="sidebar">
+        <div class="p-3 border-bottom d-flex flex-column align-items-center">
+            <img src="/static/img/default_avatar.png" alt="Avatar" class="rounded-circle mb-2" width="64" height="64" id="user-avatar">
+            <h6 id="profile-username">{{ session['username'] if session['username'] else 'Guest' }}</h6>
+            <span class="badge bg-success mb-2" id="profile-status">Online</span>
+            <button class="btn btn-sm btn-outline-primary mb-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</button>
+        </div>
         <div class="p-3 border-bottom">
             <h5>Chat Rooms</h5>
             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#createRoomModal">
                 <i class="fas fa-plus"></i> New Room
             </button>
         </div>
-        <div class="room-list">
-            {% for room in rooms %}
-            <div class="p-2 border-bottom room-item" data-room-id="{{ room.id }}">
-                <i class="fas fa-hashtag"></i> {{ room.name }}
-                <small class="text-muted d-block">{{ room.description }}</small>
-            </div>
-            {% endfor %}
-        </div>
+        <div class="room-list" id="roomList"></div>
         <div class="user-list">
             <h6>Online Users</h6>
             <div id="online-users"></div>
         </div>
     </div>
-    
+
+    <!-- Main Chat Area -->
     <div class="chat-area">
         <div class="message-list" id="messages"></div>
         <div class="typing-indicator" id="typing-indicator"></div>
         <div class="message-input">
-            <form id="message-form" class="d-flex gap-2">
+            <form id="message-form" class="d-flex gap-2" enctype="multipart/form-data">
                 <div class="input-group">
                     <input type="text" class="form-control" id="message-input" placeholder="Type a message...">
                     <button type="button" class="btn btn-outline-secondary" id="emoji-button">
@@ -172,11 +173,21 @@
                         <i class="fas fa-paperclip"></i>
                     </button>
                 </div>
+                <input type="file" id="file-input" style="display: none">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </form>
+            <div id="file-preview" class="file-preview mt-2"></div>
         </div>
+    </div>
+
+    <!-- Activity Log Panel -->
+    <div class="activity-log bg-light border-start" style="width:300px;overflow-y:auto;">
+        <div class="p-3 border-bottom">
+            <h6>Activity Log</h6>
+        </div>
+        <div id="activity-log-list" class="p-2"></div>
     </div>
 </div>
 
@@ -221,8 +232,31 @@
     </div>
 </div>
 
-<!-- File Input (hidden) -->
-<input type="file" id="file-input" style="display: none">
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="editUsername" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="editUsername" value="{{ session['username'] if session['username'] else '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="editAvatar" class="form-label">Avatar</label>
+                    <input type="file" class="form-control" id="editAvatar">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveProfileButton">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
