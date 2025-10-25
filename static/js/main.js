@@ -8,6 +8,16 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Connected to server');
     });
 
+    // Activity log: initial load and updates
+    socket.on('activity_log', data => {
+        const logs = (data && data.logs) || [];
+        renderActivityLogs(logs);
+    });
+
+    socket.on('activity', entry => {
+        prependActivity(entry);
+    });
+
     // Handle incoming messages
     socket.on('message', data => {
         const messageList = document.getElementById('messages');
@@ -64,6 +74,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusDot = userElement.querySelector('.user-status');
             statusDot.className = `user-status ${data.status}`;
         }
+    });
+
+    // Handle full user list updates (presence)
+    socket.on('update_users', data => {
+        const users = data.users || [];
+        const container = document.getElementById('online-users');
+        if (!container) return;
+        container.innerHTML = '';
+        users.forEach(u => {
+            const div = document.createElement('div');
+            div.className = 'd-flex justify-content-between align-items-center mb-1';
+            div.dataset.userId = u.username;
+            div.innerHTML = `
+                <div><span class="user-status online"></span> ${u.username}</div>
+                <div>
+                    ${u.username !== currentUser.username ? `<button class="btn btn-sm btn-link invite-btn" data-username="${u.username}">Invite</button>` : ''}
+                </div>
+            `;
+            container.appendChild(div);
+        });
+        // Attach invite handlers
+        container.querySelectorAll('.invite-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const to = btn.dataset.username;
+                if (!currentRoom) return alert('Join a room first to send an invite.');
+                socket.emit('invite', { to: to, room: currentRoom });
+                alert(`Invite sent to ${to} to join ${currentRoom}`);
+            });
+        });
     });
 
     // Handle reactions
@@ -153,6 +192,22 @@ document.addEventListener('DOMContentLoaded', () => {
         fileInput.value = '';
     });
 
+    // When someone invites current user
+    socket.on('invited', data => {
+        const from = data.from;
+        const room = data.room;
+        if (confirm(`${from} invited you to join room '${room}'. Join now?`)) {
+            if (currentRoom) socket.emit('leave_room', { room: currentRoom });
+            currentRoom = room;
+            socket.emit('join_room', { room: room });
+            // UI: set active
+            document.querySelectorAll('.room-item').forEach(r => r.classList.remove('active'));
+            const el = document.querySelector(`.room-item[data-room-id="${room}"]`);
+            if (el) el.classList.add('active');
+            document.getElementById('messages').innerHTML = '';
+        }
+    });
+
     // Typing indicator
     const messageInput = document.getElementById('message-input');
     messageInput.addEventListener('input', () => {
@@ -207,7 +262,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!messageElement) return;
 
         if (e.target.closest('.react-btn')) {
-            picker.togglePicker(e.target.closest('.react-btn'));
+            if (window.emojiPicker) {
+                window.emojiPicker.togglePicker(e.target.closest('.react-btn'));
+            }
         }
 
         if (e.target.closest('.edit-btn')) {
@@ -227,3 +284,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Activity log UI helpers
+function renderActivityLogs(logs) {
+    const container = document.getElementById('activity-log-list');
+    if (!container) return;
+    container.innerHTML = '';
+    logs.slice().reverse().forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'activity-entry p-2 border-bottom';
+        div.innerHTML = `<small class="text-muted">${entry.timestamp}</small><div>${entry.description}</div>`;
+        container.appendChild(div);
+    });
+}
+
+function prependActivity(entry) {
+    const container = document.getElementById('activity-log-list');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'activity-entry p-2 border-bottom';
+    div.innerHTML = `<small class="text-muted">${entry.timestamp}</small><div>${entry.description}</div>`;
+    container.insertBefore(div, container.firstChild);
+}
