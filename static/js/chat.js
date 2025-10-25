@@ -219,4 +219,4 @@ document.addEventListener('DOMContentLoaded', () => {
         categorySection.appendChild(div);
     }
     }
-});
+);
