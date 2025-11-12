@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
+    // expose socket for easier debugging from browser console
+    window.socket = socket;
     let currentRoom = null;
     let typingTimeout = null;
 
@@ -18,14 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
         prependActivity(entry);
     });
 
-    // Handle incoming messages
-    socket.on('message', data => {
-        const messageList = document.getElementById('messages');
-        const isOwn = data.user_id === currentUser.id;
-        
+    // Helper to render a message element (returns the created element)
+    function buildMessageElement(data, isOwn) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${isOwn ? 'own' : 'other'}`;
-        messageDiv.dataset.messageId = data.id;
+        if (data.id) messageDiv.dataset.messageId = data.id;
+        if (data.client_id) messageDiv.dataset.clientId = data.client_id;
 
         let content = '';
         if (data.type === 'text') {
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <i class="far fa-smile"></i>
                 </button>
                 ${isOwn ? `
-                    <button class="btn btn-sm btn-link edit-btn">
+                    <button class="btn class=\"btn-sm btn-link edit-btn\">">
                         <i class="fas fa-edit"></i>
                     </button>
                     <button class="btn btn-sm btn-link delete-btn">
@@ -63,6 +63,27 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="reaction-list"></div>
         `;
 
+        return messageDiv;
+    }
+
+    // Handle incoming messages (server canonical messages)
+    socket.on('message', data => {
+        const messageList = document.getElementById('messages');
+        const isOwn = data.user_id === currentUser.id;
+
+        // If this message matches a client-side optimistic message, replace it
+        if (data.client_id) {
+            const pending = document.querySelector(`[data-client-id="${data.client_id}"]`);
+            if (pending) {
+                const newEl = buildMessageElement(data, isOwn);
+                pending.replaceWith(newEl);
+                messageList.scrollTop = messageList.scrollHeight;
+                return;
+            }
+        }
+
+        // Otherwise append normally
+        const messageDiv = buildMessageElement(data, isOwn);
         messageList.appendChild(messageDiv);
         messageList.scrollTop = messageList.scrollHeight;
     });
@@ -146,11 +167,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const message = input.value.trim();
         
         if (message) {
+            // create a temporary client-side id to render optimistically
+            const clientId = 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
+            const timestamp = new Date().toLocaleTimeString();
+
+            // render optimistic message locally
+            const optimistic = {
+                client_id: clientId,
+                user_id: currentUser.id,
+                username: currentUser.username,
+                content: message,
+                timestamp: timestamp,
+                type: 'text',
+                edited: false
+            };
+            const messageList = document.getElementById('messages');
+            const el = buildMessageElement(optimistic, true);
+            messageList.appendChild(el);
+            messageList.scrollTop = messageList.scrollHeight;
+
+            // emit to server and include client_id so server can echo it back
             socket.emit('message', {
                 message: message,
                 room: currentRoom,
-                type: 'text'
+                type: 'text',
+                client_id: clientId
             });
+
             input.value = '';
         }
     });
