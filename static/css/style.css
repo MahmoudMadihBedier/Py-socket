@@ -1,13 +1,13 @@
 /* Global Styles */
 body {
-    background: linear-gradient(180deg, #000000 0%, #000000 100%);
+    background: linear-gradient(180deg, #363738 0%, #b1beca 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #0f1720;
 }
 
 /* Chat Container */
 .chat-container {
-    background-color: #ffffff;
+    background-color:linear-gradient(180deg, #b1beca 100%, #363738 0%);
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -23,7 +23,7 @@ body {
     padding: 12px 15px;
     cursor: pointer;
     transition: background-color 0.2s;
-    color: #ecf0f1;
+    color: #b5e5f1;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -48,7 +48,7 @@ body {
 
 .message.own .message-bubble {
     background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
+    color: rgb(124, 109, 109);
 }
 
 .message.other .message-bubble {
