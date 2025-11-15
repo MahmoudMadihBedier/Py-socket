@@ -3,16 +3,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentRoom = 'General';
     
     // DOM Elements
-    const messageForm = document.getElementById('messageForm');
-    const messageInput = document.getElementById('messageInput');
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
     const messagesDiv = document.getElementById('messages');
-    const userList = document.getElementById('userList');
+    const onlineUsersContainer = document.getElementById('online-users');
     const roomList = document.getElementById('roomList');
     const createRoomButton = document.getElementById('createRoomButton');
 
     // Connect to socket.io
     socket.on('connect', () => {
         console.log('Connected to server');
+        // Join General room by default
+        socket.emit('join', { room: 'General' });
     });
 
     // Handle incoming messages
@@ -33,6 +35,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle new room creation
     socket.on('room_created', (data) => {
         addRoom(data);
+    });
+
+    // Handle invite notifications
+    socket.on('invited', (data) => {
+        const fromUser = data.from;
+        const roomName = data.room;
+        const joinRoom = confirm(`${fromUser} invited you to join room "${roomName}". Do you want to join?`);
+        if (joinRoom) {
+            socket.emit('leave', { room: currentRoom });
+            socket.emit('join', { room: roomName });
+            currentRoom = roomName;
+            
+            // Update UI
+            document.querySelectorAll('.room-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const roomItem = document.querySelector(`[data-room="${roomName}"]`);
+            if (roomItem) {
+                roomItem.classList.add('active');
+            }
+            
+            // Clear messages
+            messagesDiv.innerHTML = '';
+        }
     });
 
     // Fetch and display rooms periodically
@@ -97,9 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Handle room switching
-    roomList.addEventListener('click', (e) => {
+    document.addEventListener('click', (e) => {
         const roomItem = e.target.closest('.room-item');
-        if (roomItem) {
+        if (roomItem && roomItem.dataset.room) {
             const newRoom = roomItem.dataset.room;
             if (newRoom !== currentRoom) {
                 socket.emit('leave', { room: currentRoom });
@@ -121,11 +147,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Helper functions
     function appendMessage(data) {
         const div = document.createElement('div');
-        div.className = `message ${data.username === username ? 'own' : 'other'}`;
+        const currentUsername = window.currentUser?.username || '';
+        div.className = `message ${data.username === currentUsername ? 'own' : 'other'}`;
         
         div.innerHTML = `
             <div class="bubble">
-                ${data.username !== username ? `<strong>${data.username}</strong><br>` : ''}
+                ${data.username !== currentUsername ? `<strong>${data.username}</strong><br>` : ''}
                 ${data.message}
             </div>
             <div class="info">${data.timestamp}</div>
@@ -144,15 +171,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateUserList(users) {
-        userList.innerHTML = '';
+        if (!onlineUsersContainer) return;
+        onlineUsersContainer.innerHTML = '';
         users.forEach(user => {
             const div = document.createElement('div');
-            div.className = 'user-item';
+            div.className = 'd-flex justify-content-between align-items-center mb-2';
+            div.dataset.userId = user.username;
+            
+            // Get current username from session
+            const currentUsername = window.currentUser?.username || '';
+            
             div.innerHTML = `
-                <span class="user-status online"></span>
-                ${user.username}
+                <div>
+                    <span class="user-status online"></span>
+                    <span>${user.username}</span>
+                </div>
+                <div>
+                    ${user.username !== currentUsername ? `<button class="btn btn-sm btn-outline-primary invite-btn" data-username="${user.username}">Invite</button>` : ''}
+                </div>
             `;
-            userList.appendChild(div);
+            onlineUsersContainer.appendChild(div);
+        });
+        
+        // Attach invite handlers
+        onlineUsersContainer.querySelectorAll('.invite-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const toUser = btn.dataset.username;
+                if (!currentRoom) {
+                    alert('Please join a room first to send an invite.');
+                    return;
+                }
+                socket.emit('invite', { to: toUser, room: currentRoom });
+                alert(`Invite sent to ${toUser} to join ${currentRoom}`);
+            });
         });
     }
 
@@ -218,5 +269,4 @@ document.addEventListener('DOMContentLoaded', () => {
         
         categorySection.appendChild(div);
     }
-    }
-);
+});
